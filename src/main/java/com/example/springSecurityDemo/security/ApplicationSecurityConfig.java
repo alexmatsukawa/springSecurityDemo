@@ -32,6 +32,8 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/", "index", "/css/*", "/js/*")
                 .permitAll()
+                .antMatchers("/api/**")//this api blocks anyone that doesn't have the student role from accessing it
+                .hasRole(STUDENT.name())
                 .anyRequest()
                 .authenticated()
                 .and()
