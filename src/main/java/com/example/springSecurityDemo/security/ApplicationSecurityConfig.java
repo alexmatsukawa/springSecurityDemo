@@ -14,6 +14,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
+import java.util.concurrent.TimeUnit;
+
 import static com.example.springSecurityDemo.security.ApplicationUserRole.*;
 
 @Configuration
@@ -48,7 +50,12 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authenticated()
                 .and()
                 .formLogin()
-                .loginPage("/login").permitAll();
+                .loginPage("/login").permitAll()
+                .defaultSuccessUrl("/courses", true)
+                .and()
+                .rememberMe() //defaults to 2 weeks
+                .tokenValiditySeconds((int) TimeUnit.SECONDS.toSeconds(21))
+                .key("SOMETHINGVERYSECURED"); //this should be a secured value in a real context
     }
 
     @Override
