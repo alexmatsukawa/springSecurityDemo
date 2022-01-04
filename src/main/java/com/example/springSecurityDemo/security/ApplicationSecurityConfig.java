@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.util.concurrent.TimeUnit;
 
@@ -50,12 +51,24 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authenticated()
                 .and()
                 .formLogin()
-                .loginPage("/login").permitAll()
-                .defaultSuccessUrl("/courses", true)
+                    .loginPage("/login")
+                    .permitAll()
+                    .defaultSuccessUrl("/courses", true)
+                    .passwordParameter("password") //these params need to match the name field in the login.html page
+                    .usernameParameter("username")
                 .and()
                 .rememberMe() //defaults to 2 weeks
-                .tokenValiditySeconds((int) TimeUnit.SECONDS.toSeconds(21))
-                .key("SOMETHINGVERYSECURED"); //this should be a secured value in a real context
+                    .tokenValiditySeconds((int) TimeUnit.SECONDS.toSeconds(21))
+                    .key("SOMETHINGVERYSECURED") //this should be a secured value in a real context
+                    .rememberMeParameter("remember-me")
+                .and()
+                .logout()
+                    .logoutUrl("/logout")
+                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))//if CSRF is enabled, delete this line...
+                    .clearAuthentication(true)
+                    .invalidateHttpSession(true)
+                    .deleteCookies("JSESSIONID", "remember-me")
+                    .logoutSuccessUrl("/login");
     }
 
     @Override
