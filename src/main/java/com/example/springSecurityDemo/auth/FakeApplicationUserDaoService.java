@@ -11,7 +11,7 @@ import java.util.Optional;
 import static com.example.springSecurityDemo.security.ApplicationUserRole.*;
 
 @Repository("fake")
-public class FakeApplicationUserDaoService implements ApplicationUserDao{
+public class FakeApplicationUserDaoService implements ApplicationUserDao {
 
     private final PasswordEncoder passwordEncoder;
 
@@ -61,4 +61,5 @@ public class FakeApplicationUserDaoService implements ApplicationUserDao{
 
         return applicationUsers;
     }
+
 }

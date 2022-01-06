@@ -37,16 +37,8 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/", "index", "/css/*", "/js/*")
-                .permitAll()
-                .antMatchers("/api/**")//this api blocks anyone that doesn't have the student role from accessing it
-                .hasRole(STUDENT.name())
-                //ORDER MATTERS HERE FOR MATCHERS; IF WE DEFINE THEM IN THE WRONG ORDER, ACCESS RIGHTS COULD GET MESSED UP
-                //BELOW ANTMATCHERS ARE REPLACED BY THE @PreAuthorize ANNOTATION IN STUDENTMANAGEMENTCONTROLLER CLASS
-//                .antMatchers(HttpMethod.DELETE, "/management/api/**").hasAuthority(COURSE_WRITE.getPermission())
-//                .antMatchers(HttpMethod.POST, "/management/api/**").hasAuthority(COURSE_WRITE.getPermission())
-//                .antMatchers(HttpMethod.PUT, "/management/api/**").hasAuthority(COURSE_WRITE.getPermission())
-//                .antMatchers(HttpMethod.GET, "/management/api/**").hasAnyRole(ADMIN.name(), ADMINTRAINEE.name())
+                .antMatchers("/", "index", "/css/*", "/js/*").permitAll()
+                .antMatchers("/api/**").hasRole(STUDENT.name())
                 .anyRequest()
                 .authenticated()
                 .and()
@@ -54,21 +46,28 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                     .loginPage("/login")
                     .permitAll()
                     .defaultSuccessUrl("/courses", true)
-                    .passwordParameter("password") //these params need to match the name field in the login.html page
+                    .passwordParameter("password")
                     .usernameParameter("username")
                 .and()
-                .rememberMe() //defaults to 2 weeks
-                    .tokenValiditySeconds((int) TimeUnit.SECONDS.toSeconds(21))
-                    .key("SOMETHINGVERYSECURED") //this should be a secured value in a real context
+                .rememberMe()
+                    .tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(21))
+                    .key("somethingverysecured")
                     .rememberMeParameter("remember-me")
                 .and()
                 .logout()
                     .logoutUrl("/logout")
-                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))//if CSRF is enabled, delete this line...
+                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET")) // https://docs.spring.io/spring-security/site/docs/4.2.12.RELEASE/apidocs/org/springframework/security/config/annotation/web/configurers/LogoutConfigurer.html
                     .clearAuthentication(true)
                     .invalidateHttpSession(true)
                     .deleteCookies("JSESSIONID", "remember-me")
                     .logoutSuccessUrl("/login");
+
+        //ORDER MATTERS HERE FOR MATCHERS; IF WE DEFINE THEM IN THE WRONG ORDER, ACCESS RIGHTS COULD GET MESSED UP
+        //BELOW ANTMATCHERS ARE REPLACED BY THE @PreAuthorize ANNOTATION IN STUDENTMANAGEMENTCONTROLLER CLASS
+//                .antMatchers(HttpMethod.DELETE, "/management/api/**").hasAuthority(COURSE_WRITE.getPermission())
+//                .antMatchers(HttpMethod.POST, "/management/api/**").hasAuthority(COURSE_WRITE.getPermission())
+//                .antMatchers(HttpMethod.PUT, "/management/api/**").hasAuthority(COURSE_WRITE.getPermission())
+//                .antMatchers(HttpMethod.GET, "/management/api/**").hasAnyRole(ADMIN.name(), ADMINTRAINEE.name())
     }
 
     @Override
